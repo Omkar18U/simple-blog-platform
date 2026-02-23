@@ -1,0 +1,168 @@
+// Prisma Schema for InkFlow Blog Platform
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ──────────────────────────────────────────────
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+}
+
+// ─── Models ─────────────────────────────────────────────
+
+model User {
+  id             String    @id @default(cuid())
+  name           String
+  email          String    @unique
+  hashedPassword String
+  image          String?
+  bio            String?
+  role           Role      @default(USER)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  posts                 Post[]
+  comments              Comment[]
+  bookmarks             Bookmark[]
+  likes                 Like[]
+  followers             Follow[]        @relation("following")
+  following             Follow[]        @relation("followers")
+  notificationsReceived Notification[]  @relation("recipient")
+  notificationsGiven    Notification[]  @relation("issuer")
+
+  @@map("users")
+}
+
+model Post {
+  id          String     @id @default(cuid())
+  title       String
+  slug        String     @unique
+  content     String
+  excerpt     String?
+  coverImage  String?
+  status      PostStatus @default(DRAFT)
+  readTime    Int        @default(1)
+  views       Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  author      User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId    String
+  tags          TagOnPost[]
+  comments      Comment[]
+  bookmarks     Bookmark[]
+  likes         Like[]
+  notifications Notification[]
+
+  @@index([authorId])
+  @@index([slug])
+  @@map("posts")
+}
+
+model Tag {
+  id    String      @id @default(cuid())
+  name  String      @unique
+  color String      @default("#3B49DF")
+  posts TagOnPost[]
+
+  @@map("tags")
+}
+
+model TagOnPost {
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId  String
+
+  @@id([postId, tagId])
+  @@map("tags_on_posts")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+
+  @@map("comments")
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+
+  @@unique([userId, postId])
+  @@map("bookmarks")
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+
+  @@unique([userId, postId])
+  @@map("likes")
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+
+  follower    User     @relation("followers", fields: [followerId], references: [id], onDelete: Cascade)
+  followerId  String
+
+  following   User     @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+  followingId String
+
+  @@unique([followerId, followingId])
+  @@map("follows")
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  type        String   // LIKE | COMMENT | FOLLOW
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  recipient   User     @relation("recipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  recipientId String
+
+  issuer      User     @relation("issuer", fields: [issuerId], references: [id], onDelete: Cascade)
+  issuerId    String
+
+  post        Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId      String?
+
+  @@map("notifications")
+}

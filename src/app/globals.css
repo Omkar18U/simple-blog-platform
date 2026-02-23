@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+:root {
+  --background: #FDFBF7;
+  --foreground: #1A1A2E;
+  --primary: #3B49DF;
+  --primary-hover: #2F3AB2;
+  --card: #FFFFFF;
+  --muted: #6B7280;
+  --border: #E5E7EB;
+  --accent: #FF6154;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --error: #EF4444;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* ─── Base Styles ─────────────────────────────────────── */
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* ─── Scrollbar ───────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* ─── Rich Text Editor Overrides ──────────────────────── */
+
+.ql-toolbar.ql-snow {
+  border: 1px solid var(--border) !important;
+  border-radius: 8px 8px 0 0 !important;
+  background: white;
+}
+
+.ql-container.ql-snow {
+  border: 1px solid var(--border) !important;
+  border-top: none !important;
+  border-radius: 0 0 8px 8px !important;
+  font-size: 1rem;
+  min-height: 300px;
+}
+
+.ql-editor {
+  min-height: 300px;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  line-height: 1.75;
+}
+
+.ql-editor.ql-blank::before {
+  color: #9ca3af;
+  font-style: normal !important;
+}
+
+/* ─── Animations ──────────────────────────────────────── */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s ease-out;
+}
