@@ -4,19 +4,8 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
 import bcrypt from "bcryptjs";
 
-// Extract the direct TCP URL from the prisma+postgres:// connection string
-function getDirectUrl(): string {
-  const dbUrl = process.env.DATABASE_URL!;
-  const url = new URL(dbUrl);
-  const apiKey = url.searchParams.get("api_key")!;
-  const decoded = JSON.parse(
-    Buffer.from(apiKey, "base64url").toString("utf-8")
-  );
-  return decoded.databaseUrl;
-}
-
 const pool = new pg.Pool({
-  connectionString: getDirectUrl(),
+  connectionString: process.env.DATABASE_URL!,
   max: 1,
   ssl: false,
 });
